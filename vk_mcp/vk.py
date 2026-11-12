@@ -8,6 +8,7 @@ import httpx
 from . import catalog,media
 
 READS = {
+ 'videos_by_id': ('video.get', {'video_ids'}, 'read'),
  'wall': ('wall.get', {'offset','count','filter'}, 'read'),
  'posts': ('wall.getById', {'post_ids'}, 'read'),
  'community': ('groups.getById', {'fields'}, 'read'),
@@ -102,11 +103,11 @@ class VK:
                 raise ValueError('Для публичного чтения подключите сервисный ключ приложения VK')
             if operation in ('community','members'):
                 p['group_ids' if operation=='community' else 'group_id'] = group
-            elif operation=='posts':
-                ids = p.pop('post_ids',[])
+            elif operation in ('posts','videos_by_id'):
+                ids = p.pop('post_ids' if operation=='posts' else 'video_ids',[])
                 if not isinstance(ids,list) or not ids or len(ids)>100 or any(type(i) is not int or i<=0 for i in ids):
-                    raise ValueError('post_ids: от 1 до 100 положительных номеров постов')
-                p['posts'] = ','.join(f'-{group}_{i}' for i in ids)
+                    raise ValueError('Нужны от1 до100 положительных локальных ID')
+                p['posts' if operation=='posts' else 'videos'] = ','.join(f'-{group}_{i}' for i in ids)
             else:
                 p['owner_id'] = -group
         return await self.call(token,method,p,True)

@@ -61,3 +61,12 @@ class CatalogFlowTest(unittest.TestCase):
         self.assertEqual(self.vk.call.await_count,1)
         self.assertEqual(self.vk.call.await_args.args[1],'wall.closeComments')
         self.assertEqual(self.vk.call.await_args.args[2]['owner_id'],-101)
+
+    def test_video_status_owner_is_pinned(self):
+        self.vk.call=AsyncMock(return_value={'items':[{'id':12,'owner_id':-101,'processing':1}]})
+        result=asyncio.run(self.vk.read('alice','alpha','videos_by_id',{'video_ids':[12]}))
+        self.assertEqual(self.vk.call.await_args.args[2],{'videos':'-101_12'})
+        self.assertEqual(result['items'][0]['processing'],1)
+        for value in [['-202_12'],[-12],[True],[]]:
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):asyncio.run(self.vk.read('alice','alpha','videos_by_id',{'video_ids':value}))
