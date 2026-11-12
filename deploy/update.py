@@ -15,11 +15,11 @@ def fetch(url,maximum):
 
 
 def run(cmd,cwd=None,build=False):
-    if build: cmd=['runuser','-u',USER,'--']+cmd
+    if build: cmd=['/usr/sbin/runuser','-u',USER,'--']+cmd
     result=subprocess.run(cmd,cwd=cwd,capture_output=True,text=True,timeout=300,
         env={'PATH':'/usr/local/bin:/usr/bin:/bin','HOME':'/var/lib/mcp-vk-build','PYTHONDONTWRITEBYTECODE':'1',
              'PIP_DISABLE_PIP_VERSION_CHECK':'1','PYTHONUNBUFFERED':'1'})
-    if result.returncode: raise RuntimeError('Update check failed: '+str(cmd[-3:]))
+    if result.returncode: raise RuntimeError('Update check failed: '+str(cmd[-3:])+'; '+result.stderr[-1200:])
     return result.stdout
 
 
@@ -55,7 +55,7 @@ def main():
             raise RuntimeError('Only exact PyPI requirements allowed')
         run(['chown','-R',USER+':'+USER,str(release)])
         python=str(release/'.venv/bin/python')
-        run(['python3','-m','venv',str(release/'.venv')],build=True)
+        run(['python3','-m','venv',str(release/'.venv')],cwd=release,build=True)
         run([python,'-m','pip','install','-r','requirements.lock'],cwd=release,build=True)
         run([python,'-m','pip','install','--no-deps','.'],cwd=release,build=True)
         run([python,'-B','-m','unittest','discover','-s','tests','-v'],cwd=release,build=True)
