@@ -36,7 +36,9 @@ class ServiceTest(unittest.TestCase):
             'scope':'vk:read vk:write','state':'test-state','resource':ORIGIN+'/vk/mcp'},follow_redirects=False)
         self.assertIn(r.status_code,(302,303,307),r.text)
         login=r.headers['location']; ticket=parse_qs(urlsplit(login).query)['ticket'][0]
-        self.client.get(login)
+        login_page=self.client.get(login)
+        self.assertEqual(login_page.headers['referrer-policy'],'same-origin')
+        self.assertIn("form-action 'self' https://client.example;",login_page.headers['content-security-policy'])
         r=self.client.post('/vk/login',data={'ticket':ticket,'csrf':self.client.cookies.get('vk_csrf'),
             'username':'alice','password':PASSWORD},headers={'Origin':ORIGIN},follow_redirects=False)
         self.assertEqual(r.status_code,303,r.text)
@@ -119,6 +121,19 @@ class ServiceTest(unittest.TestCase):
             for value in params.values():self.assertNotIn(value,r.text)
         with self.store.db() as db:
             self.assertEqual(db.execute("SELECT COUNT(*) FROM objects WHERE kind IN ('access','code')").fetchone()[0],0)
+
+    def test_form_referrer_policy_and_origin_rejection(self):
+        # no-referrer can turn Origin into null for browser form POST navigation.
+        # Keep same-origin identity for forms; never send it cross-origin.
+        self.assertEqual(self.client.get('/vk/approve?ticket=synthetic').headers['referrer-policy'],'same-origin')
+        self.assertEqual(self.client.get('/vk/health').headers['referrer-policy'],'no-referrer')
+        for origin,reason in [('null','origin_null'),('https://evil.example','origin_mismatch')]:
+            r=self.client.post('/vk/login',data={'username':'alice','password':PASSWORD},headers={'Origin':origin})
+            self.assertEqual(r.status_code,403)
+            diagnostic=self.store.get('auth-diagnostic','latest')
+            self.assertEqual(diagnostic['reason'],reason)
+            self.assertEqual(set(diagnostic),{'reason','at'})
+            self.assertNotIn(PASSWORD,str(diagnostic))
 
     def test_http_security(self):
         r=self.client.get('/vk/health'); self.assertEqual(r.status_code,200)

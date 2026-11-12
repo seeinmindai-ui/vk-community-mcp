@@ -4,7 +4,7 @@ import os
 import secrets
 import time
 from pathlib import Path
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 from mcp.server.fastmcp import FastMCP
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.auth.provider import AuthorizationCode, construct_redirect_uri
@@ -100,7 +100,7 @@ def build(directory=None, origin=None):
         """
         return {'result':await vk.execute(principal(True),action_id)}
 
-    def form(ticket, body):
+    def form(ticket, body, redirect_uri=None):
         csrf = secrets.token_urlsafe(32)
         store.put('csrf',csrf,{'ticket':ticket},600)
         response = page(body+'<form method="post">'
@@ -109,28 +109,43 @@ def build(directory=None, origin=None):
             '<label>Учётная запись MCP<input name="username" autocomplete="username" required></label>'
             '<label>Пароль MCP<input name="password" type="password" autocomplete="current-password" required></label>'
             '<button type="submit">Подтвердить</button></form>')
+        if redirect_uri is not None:
+            # The SDK already validated this client's exact registered redirect URI.
+            # Chrome also applies form-action to the 303 following a POST.
+            target=urlsplit(redirect_uri)
+            destination=target.scheme+'://'+target.netloc
+            response.headers['Content-Security-Policy']=(
+                "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' "+
+                destination+"; frame-ancestors 'none'")
         response.set_cookie('vk_csrf',csrf,secure=True,httponly=True,samesite='lax',path='/vk',max_age=600)
         return response
 
     async def verify_form(request):
-        if request.headers.get('origin')!=origin:
+        def reject(reason):
+            # Only fixed reason codes. Never record credentials, cookies, URLs or identities.
+            store.put('auth-diagnostic','latest',{'reason':reason,'at':int(time.time())},3600)
             return None
+        supplied_origin=request.headers.get('origin')
+        if supplied_origin!=origin:
+            return reject('origin_missing' if supplied_origin is None else 'origin_null' if supplied_origin=='null' else 'origin_mismatch')
         data = await request.form()
         csrf = str(data.get('csrf',''))
-        if not secrets.compare_digest(csrf,request.cookies.get('vk_csrf','')):
-            return None
+        cookie=request.cookies.get('vk_csrf','')
+        if not cookie:
+            return reject('csrf_cookie_missing')
+        if not secrets.compare_digest(csrf,cookie):
+            return reject('csrf_mismatch')
         proof = store.get('csrf',csrf,consume=True)
         if not proof or proof['ticket']!=data.get('ticket'):
-            return None
-        # Shared persistent fixed-window limit; proxy supplies no user-controlled IP identity.
+            return reject('csrf_expired_or_ticket_mismatch')
         bucket = str(int(time.time()//60))
         attempts = store.get('login-limit',bucket) or 0
         store.put('login-limit',bucket,attempts+1,120)
         if attempts>=10:
-            return None
+            return reject('rate_limit')
         username,password = str(data.get('username','')),str(data.get('password',''))
         if len(password)>1024 or not store.verify(username,password):
-            return None
+            return reject('credentials_rejected')
         return data,username
 
     @server.custom_route('/vk/login',methods=['GET','POST'])
@@ -145,7 +160,7 @@ def build(directory=None, origin=None):
                 html.escape(obj['client_name'])+'</p><p>Адрес возврата: '+
                 html.escape(p['redirect_uri'])+'</p><p>Разрешения: '+
                 html.escape(' '.join(p['scopes'] or ['vk:read']))+
-                '</p><p>Доступ только к сообществам вашей учётной записи MCP. Это не пароль VK.</p>')
+                '</p><p>Доступ только к сообществам вашей учётной записи MCP. Это не пароль VK.</p>',redirect_uri=p['redirect_uri'])
         proof = await verify_form(request)
         if not proof:
             return page('Вход отклонён. Откройте исходную ссылку заново.',403)
@@ -237,9 +252,10 @@ class Guard:
             return await receive()
         async def safe_send(message):
             if message['type']=='http.response.start':
-                message['headers']+= [(b'cache-control',b'no-store'),(b'referrer-policy',b'no-referrer'),
-                    (b'x-frame-options',b'DENY'),(b'x-content-type-options',b'nosniff'),
-                    (b'content-security-policy',b"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'")]
+                message['headers']+= [(b'cache-control',b'no-store'),(b'referrer-policy',b'same-origin' if scope.get('path') in ('/vk/login','/vk/approve') else b'no-referrer'),
+                    (b'x-frame-options',b'DENY'),(b'x-content-type-options',b'nosniff')]
+                if not any(k.lower()==b'content-security-policy' for k,v in message['headers']):
+                    message['headers'].append((b'content-security-policy',b"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'"))
             await send(message)
         await self.app(scope,replay,safe_send)
 
