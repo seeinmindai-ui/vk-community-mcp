@@ -1,0 +1,10 @@
+# Merge these paths into the existing site; preserve unrelated routes.
+mcp.shmasiki.pro {
+    @vk path /vk/* /authorize /token /register /revoke /.well-known/oauth-authorization-server /.well-known/oauth-protected-resource/vk/mcp
+    handle @vk {
+        reverse_proxy 127.0.0.1:8310
+    }
+    handle {
+        respond 404
+    }
+}

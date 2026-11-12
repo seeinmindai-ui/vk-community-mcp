@@ -1,0 +1,31 @@
+[Unit]
+Description=VK Community MCP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=mcp-vk
+Group=mcp-vk
+WorkingDirectory=/opt/mcp/vk/current
+Environment=VK_MCP_STATE=/var/lib/mcp-vk
+Environment=VK_MCP_ORIGIN=https://mcp.shmasiki.pro
+Environment=VK_MCP_PORT=8310
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/mcp/vk/current/.venv/bin/python -B -m vk_mcp.server
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/mcp-vk
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+LockPersonality=true
+MemoryMax=512M
+TasksMax=64
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target

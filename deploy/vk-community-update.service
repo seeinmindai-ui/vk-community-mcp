@@ -1,0 +1,10 @@
+[Unit]
+Description=Update VK MCP from checked production branch
+After=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I -B /opt/mcp/vk/update.py
+TimeoutStartSec=900
+UMask=0022
+PrivateTmp=true
+ProtectHome=true

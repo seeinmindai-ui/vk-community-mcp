@@ -1,0 +1,9 @@
+[Unit]
+Description=Check VK MCP production updates
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+RandomizedDelaySec=15
+Persistent=true
+[Install]
+WantedBy=timers.target
