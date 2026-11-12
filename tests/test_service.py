@@ -67,6 +67,28 @@ class ServiceTest(unittest.TestCase):
         r=self.rpc('tools/call',{'name':'vk_prepare_action','arguments':{
             'community':'alpha','action':'publish_post','parameters':{'message':'test'}}},r.json()['access_token']).json()
         self.assertTrue(r['result'].get('isError'))
+    def test_dcr_omitted_scope_supports_later_write_consent(self):
+        metadata={'redirect_uris':['https://client.example/callback'],
+            'grant_types':['authorization_code','refresh_token'],'response_types':['code'],
+            'token_endpoint_auth_method':'none','client_name':'ChatGPT-like test client'}
+        reg=self.client.post('/register',json=metadata)
+        self.assertEqual(reg.status_code,201,reg.text)
+        self.assertEqual(set(reg.json()['scope'].split()),{'vk:read','vk:write'})
+        params={'client_id':reg.json()['client_id'],'redirect_uri':metadata['redirect_uris'][0],
+            'response_type':'code','code_challenge':'a'*43,'code_challenge_method':'S256',
+            'scope':'vk:read vk:write','resource':ORIGIN+'/vk/mcp'}
+        response=self.client.get('/authorize',params=params,follow_redirects=False)
+        self.assertIn(response.status_code,(302,303,307))
+        self.assertEqual(urlsplit(response.headers['location']).path,'/vk/login')
+        # Registration and starting consent do not create data-access grants.
+        with self.store.db() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM objects WHERE kind IN ('access','refresh','code')").fetchone()[0],0)
+        narrow=self.client.post('/register',json={**metadata,'scope':'vk:read'}).json()
+        denied=self.client.get('/authorize',params={**params,'client_id':narrow['client_id']},follow_redirects=False)
+        self.assertEqual(parse_qs(urlsplit(denied.headers['location']).query)['error'],['invalid_scope'])
+        bad=self.client.post('/register',json={**metadata,'scope':'vk:admin'})
+        self.assertEqual(bad.status_code,400)
+
     def test_encryption_and_isolation(self):
         self.assertNotIn(b'fake-group-token',self.store.path.read_bytes())
         with self.assertRaises(ValueError): self.store.credentials('bob','alpha')

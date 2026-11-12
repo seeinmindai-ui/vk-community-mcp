@@ -37,7 +37,8 @@ def build(directory=None, origin=None):
         auth=AuthSettings(issuer_url=origin,resource_server_url=provider.resource,
             validate_token_resource=True,required_scopes=['vk:read'],
             client_registration_options=ClientRegistrationOptions(enabled=True,
-                valid_scopes=SCOPES,default_scopes=['vk:read']),
+                # DCR clients may omit scope and request write later at consent.
+                valid_scopes=SCOPES,default_scopes=SCOPES),
             revocation_options=RevocationOptions(enabled=True)),
         host='127.0.0.1',port=int(os.environ.get('VK_MCP_PORT','8310')),
         streamable_http_path='/vk/mcp',stateless_http=True,json_response=True,
