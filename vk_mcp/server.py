@@ -14,6 +14,7 @@ from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 from .auth import Provider, SCOPES
 from .store import Store
 from .vk import VK, READS, ACTIONS
+from . import catalog
 
 
 def page(body, status=200):
@@ -58,16 +59,23 @@ def build(directory=None, origin=None):
         return {'communities':store.communities(principal())}
 
     @server.tool(meta={'securitySchemes':[{'type':'oauth2','scopes':['vk:read']}]},annotations={'readOnlyHint':True,'openWorldHint':False})
-    def vk_capabilities() -> dict:
+    def vk_capabilities(community: str | None = None) -> dict:
         """Реализованные операции. Наличие операции не гарантирует доступность в VK API."""
-        principal()
-        return {'read_operations':list(READS),'write_actions':list(ACTIONS),
+        tenant=principal()
+        details={}
+        if community is not None:
+            _,creds=store.credentials(tenant,community)
+            details={'method_readiness':catalog.readiness(creds)}
+        return {**details,'catalog_methods':len(catalog.METHODS),'catalog_source_commit':catalog.SOURCE_COMMIT,
+            'catalog':[{"method":n,"mode":m['mode'],"token_types":m['tokenTypes']} for n,m in catalog.METHODS.items()],
+            'read_operations':list(READS),'write_actions':list(ACTIONS),
             'status':'VK-доступы проверяются отдельно; личная переписка не поддерживается',
-            'statistics_requires_user_token':True,'write_confirmation':'browser approval required'}
+            'statistics_requires_user_token':True,'video_upload_requires_user_token':True,'video_upload_max_mib':20,'vk_clip_publication_implemented':False,'write_confirmation':'browser approval required'}
 
     @server.tool(meta={'securitySchemes':[{'type':'oauth2','scopes':['vk:read']}]},annotations={'readOnlyHint':True,'openWorldHint':True})
     async def vk_read(community: str, operation: str, parameters: dict | None = None) -> dict:
         """Читать выбранное сообщество. Операции и параметры — через vk_describe_operation.
+        Поддерживает также имена100 методов из vk_capabilities; права проверяются отдельно.
         Не более 100 объектов на страницу; продолжайте с offset. История — сообщения сообщества.
         """
         return {'result':await vk.read(principal(),community,operation,parameters or {})}
@@ -76,6 +84,8 @@ def build(directory=None, origin=None):
     def vk_describe_operation(operation: str) -> dict:
         """Параметры операции чтения или действия записи; произвольных API-вызовов нет."""
         principal()
+        if operation in catalog.METHODS:
+            return {'operation':operation,**catalog.describe(operation),'community_scope':'injected from selected community; cannot be overridden','vk_access_verified':False}
         if operation in READS:
             method,fields,mode = READS[operation]
             return {'operation':operation,'method':method,'parameters':sorted(fields),'credential':mode}
@@ -87,7 +97,7 @@ def build(directory=None, origin=None):
 
     @server.tool(meta={'securitySchemes':[{'type':'oauth2','scopes':['vk:read','vk:write']}]},annotations={'readOnlyHint':False,'destructiveHint':False,'openWorldHint':False})
     def vk_prepare_action(community: str, action: str, parameters: dict) -> dict:
-        """Подготовить изменение, без обращения к VK. Пользователь открывает URL,
+        """Подготовить изменение, без обращения к VK. upload_video скачивает публичный HTTPS MP4 для проверки hash; это ещё не публикация. Пользователь открывает URL,
         проверяет сообщество и содержимое и подтверждает. Ссылка действует 10 минут.
         """
         op = vk.prepare(principal(True),community,action,parameters)
@@ -200,6 +210,8 @@ def build(directory=None, origin=None):
             return page('<h1>Подтверждено</h1><p>Вернитесь в AI-клиент и попросите выполнить действие.</p>')
         import json
         display=dict(obj['params'])
+        if 'media_sha256' in obj:
+            display.update(media_sha256=obj['media_sha256'],media_bytes=obj['media_bytes'],note='Загрузка видео; не публикация клипа или поста')
         if 'image_base64' in display:
             import hashlib
             blob=vk.decode_image(display.pop('image_base64'))

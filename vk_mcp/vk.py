@@ -5,6 +5,7 @@ import json
 import secrets
 import time
 import httpx
+from . import catalog,media
 
 READS = {
  'wall': ('wall.get', {'offset','count','filter'}, 'read'),
@@ -19,6 +20,7 @@ READS = {
  'products': ('market.get', {'offset','count'}, 'user'),
 }
 ACTIONS = {
+ 'upload_video': ('video.save', {'source_url','name','description'}, {'source_url'}),
  'upload_wall_photo': ('photos.getWallUploadServer', {'image_base64'}, {'image_base64'}),
  'publish_post': ('wall.post', {'message','attachments','publish_date','signed'}, {'message'}),
  'edit_post': ('wall.edit', {'post_id','message','attachments'}, {'post_id','message'}),
@@ -68,6 +70,11 @@ class VK:
                 raise ValueError(f"VK {code}: {hints.get(code,'Вызов отклонён VK')}")
 
     async def read(self, tenant, alias, operation, params):
+        if operation in catalog.METHODS:
+            group,creds=self.store.credentials(tenant,alias)
+            p=catalog.validate(operation,'read',group,params)
+            token,_=catalog.credential(operation,creds)
+            return await self.call(token,operation,p,True)
         if operation not in READS:
             raise ValueError('Неизвестная операция чтения')
         method, allowed, mode = READS[operation]
@@ -106,11 +113,27 @@ class VK:
 
     def prepare(self, tenant, alias, action, params):
         group,_ = self.store.credentials(tenant,alias)
+        if action in catalog.METHODS:
+            group,creds=self.store.credentials(tenant,alias)
+            p=catalog.validate(action,'write',group,params)
+            catalog.credential(action,creds)
+            if len(json.dumps(p))>24000:raise ValueError('Слишком большой запрос')
+            op=secrets.token_urlsafe(32)
+            self.store.put('action',op,{'tenant':tenant,'alias':alias,'group_id':group,
+                'action':action,'params':p,'approved':False},600)
+            return op
         if action not in ACTIONS:
             raise ValueError('Неизвестное действие')
         _,allowed,required = ACTIONS[action]
         if set(params)-allowed or not required.issubset(params):
             raise ValueError('Недопустимые или отсутствующие параметры')
+        media_info={}
+        if action=='upload_video':
+            _,creds=self.store.credentials(tenant,alias)
+            if not creds.get('user_token'):raise ValueError('not_configured: video.save требует пользовательский ключ по официальной схеме VK')
+            if any(not isinstance(params[k],str) or len(params[k])>16000 for k in ('name','description') if k in params):raise ValueError('Неверное название или описание видео')
+            blob,sha=media.download_video(params['source_url'])
+            media_info={'media_sha256':sha,'media_bytes':len(blob)}
         if action=='upload_wall_photo':
             image=self.decode_image(params['image_base64'])
         if len(json.dumps(params))>(6*1024*1024 if action=='upload_wall_photo' else 24000):
@@ -125,7 +148,7 @@ class VK:
             raise ValueError('Дата отложенной публикации должна быть в будущем')
         op = secrets.token_urlsafe(32)
         self.store.put('action',op,{'tenant':tenant,'alias':alias,'group_id':group,
-            'action':action,'params':params,'approved':False},600)
+            'action':action,'params':params,'approved':False,**media_info},600)
         return op
 
     @staticmethod
@@ -179,9 +202,13 @@ class VK:
         if group!=obj['group_id']:
             raise ValueError('Сообщество изменилось после подтверждения')
         action = obj['action']
-        method = ACTIONS[action][0]
+        method = action if action in catalog.METHODS else ACTIONS[action][0]
         p = dict(obj['params'])
-        if action in ('reply_message','mark_read'):
+        if action in catalog.METHODS:
+            p=catalog.validate(action,'write',group,p)
+            token,_=catalog.credential(action,creds)
+            if action=='messages.send':p['random_id']=int.from_bytes(secrets.token_bytes(4),'big') & 0x7fffffff
+        elif action in ('reply_message','mark_read'):
             token = creds['token']
             if action=='reply_message':
                 p['random_id'] = int.from_bytes(secrets.token_bytes(4),'big') & 0x7fffffff
@@ -193,7 +220,19 @@ class VK:
                 p['guid'] = op
             if action=='reply_comment':
                 p['from_group'] = group
-        if action=='upload_wall_photo':
+        if action=='upload_video':
+            blob,sha=await asyncio.to_thread(media.download_video,p['source_url'])
+            if sha!=obj.get('media_sha256') or len(blob)!=obj.get('media_bytes'):
+                raise ValueError('Видео изменилось после подготовки: нужна новая проверка и подтверждение')
+            if not creds.get('user_token'):raise ValueError('not_configured: нужен пользовательский ключ для video.save')
+            saved=await self.call(creds['user_token'],'video.save',
+                {'group_id':group,'name':p.get('name',''),'description':p.get('description',''),'wallpost':0})
+            if not isinstance(saved,dict) or saved.get('owner_id')!=-group or type(saved.get('video_id')) is not int or not saved.get('upload_url'):
+                raise ValueError('Результат резервирования видео неизвестен; не повторяйте автоматически')
+            await asyncio.to_thread(media.upload_video,saved['upload_url'],blob)
+            result={'owner_id':-group,'video_id':saved['video_id'],'attachment':f"video{-group}_{saved['video_id']}",
+                'processing':True,'clip_published':False,'wall_post_published':False}
+        elif action=='upload_wall_photo':
             result=await self.upload_wall_photo(group,creds,p['image_base64'])
         else:
             result = await self.call(token,method,p)

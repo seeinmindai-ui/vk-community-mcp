@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seeinmind-vk-mcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "Удалённый MCP для сообществ VK с изоляцией пользователей"
 requires-python = ">=3.11"
 license = "MIT"
@@ -16,3 +16,6 @@ vk-community-admin = "vk_mcp.admin:main"
 
 [tool.setuptools.packages.find]
 include = ["vk_mcp*"]
+
+[tool.setuptools.package-data]
+vk_mcp = ["methods.json"]

@@ -1,0 +1,4266 @@
+[
+  {
+    "name": "wall.get",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of posts on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of posts.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of posts to return (maximum 100).",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "filter",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return 'wall', 'profiles', and 'groups' fields, '0' - to return no additional fields (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "owner_id",
+        "type": "integer",
+        "description": "Negative community owner ID; compatibility parameter documented in the official VK PHP SDK.",
+        "required": true,
+        "maximum": -1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.getComments",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of comments on a post on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "Post ID.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "need_likes",
+        "description": "'1' - to return the 'likes' field, '0' - not to return the 'likes' field (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "start_comment_id",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of comments.",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of comments to return (maximum 100).",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "sort",
+        "description": "Sort order: 'asc' - chronological, 'desc' - reverse chronological",
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc",
+          "smart"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "preview_length",
+        "description": "Number of characters at which to truncate comments when previewed. By default, '90'. Specify '0' if you do not want to truncate comments.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.post",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Adds a new post on a user wall or community wall. Can also be used to publish suggested or scheduled posts.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "from_group",
+        "description": "For a community: '1' - post will be published by the community, '0' - post will be published by the user (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set.) Text of the post.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "(Required if 'message' is not set.) List of objects attached to the post, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, 'page' - wiki-page, 'note' - note, 'poll' - poll, 'album' - photo album, '<owner_id>' - ID of the media application owner. '<media_id>' - Media application ID. Example: \"photo100172_166443618,photo66748_265827614\", May contain a link to an external page to include in the post. Example: \"photo66748_265827614,http://habrahabr.ru\", \"NOTE: If more than one link is being attached, an error will be thrown.\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "signed",
+        "description": "Only for posts in communities with 'from_group' set to '1': '1' - post will be signed with the name of the posting user, '0' - post will not be signed (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "publish_date",
+        "description": "Publication date (in Unix time). If used, posting will be delayed until the set time.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "close_comments",
+        "type": "boolean"
+      },
+      {
+        "name": "donut_paid_duration",
+        "type": "integer"
+      },
+      {
+        "name": "mute_notifications",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.edit",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits a post on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set.) Text of the post.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "(Required if 'message' is not set.) List of objects attached to the post, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media application owner. '<media_id>' - Media application ID. Example: \"photo100172_166443618,photo66748_265827614\", May contain a link to an external page to include in the post. Example: \"photo66748_265827614,http://habrahabr.ru\", \"NOTE: If more than one link is being attached, an error is thrown.\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "signed",
+        "type": "boolean"
+      },
+      {
+        "name": "close_comments",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.createComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Adds a comment to a post on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "Post ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "from_group",
+        "description": "Group ID.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set.) Text of the comment.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "reply_to_comment",
+        "description": "ID of comment to reply.",
+        "type": "integer"
+      },
+      {
+        "name": "attachments",
+        "description": "(Required if 'message' is not set.) List of media objects attached to the comment, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media ojbect: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media owner. '<media_id>' - Media ID. For example: \"photo100172_166443618,photo66748_265827614\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.editComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits a comment on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "comment_id",
+        "description": "Comment ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "New comment text.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "List of objects attached to the comment, in the following format: , \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media attachment owner. '<media_id>' - Media attachment ID. For example: \"photo100172_166443618,photo66748_265827614\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getById",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns information about communities by their IDs.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID or screen name of the community.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "fields",
+        "description": "Group fields to return.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getMembers",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of community members.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID or screen name of the community.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "sort",
+        "description": "Sort order. Available values: 'id_asc', 'id_desc', 'time_asc', 'time_desc'. 'time_asc' and 'time_desc' are availavle only if the method is called by the group's 'moderator'.",
+        "type": "string",
+        "enum": [
+          "id_asc",
+          "id_desc",
+          "time_asc",
+          "time_desc"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of community members.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of community members to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000
+      },
+      {
+        "name": "fields",
+        "description": "List of additional fields to be returned. Available values: 'sex, bdate, city, country, photo_50, photo_100, photo_200_orig, photo_200, photo_400_orig, photo_max, photo_max_orig, online, online_mobile, lists, domain, has_mobile, contacts, connections, site, education, universities, schools, can_post, can_see_all_posts, can_see_audio, can_write_private_message, status, last_seen, common_count, relation, relatives, counters'.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "filter",
+        "description": "*'friends' - only friends in this community will be returned,, *'unsure' - only those who pressed 'I may attend' will be returned (if it's an event).",
+        "type": "string",
+        "enum": [
+          "donut",
+          "friends",
+          "managers",
+          "unsure",
+          "unsure_friends"
+        ],
+        "maxLength": 16000
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getSettings",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns community settings.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.getConversations",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of the current user's conversations.",
+    "parameters": [
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of conversations.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of conversations to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "filter",
+        "description": "Filter to apply: 'all' - all conversations, 'unread' - conversations with unread messages, 'important' - conversations, marked as important (only for community messages), 'unanswered' - conversations, marked as unanswered (only for community messages)",
+        "type": "string",
+        "enum": [
+          "all",
+          "archive",
+          "important",
+          "sorted_chats",
+          "unanswered",
+          "unread"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "extended",
+        "description": "'1' - return extra information about users and communities",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Profile and communities fields to return.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.getHistory",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns message history for the specified user or group chat.",
+    "parameters": [
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of messages.",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of messages to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "peer_id",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "start_message_id",
+        "description": "Starting message ID from which to return history.",
+        "type": "integer"
+      },
+      {
+        "name": "rev",
+        "description": "Sort order: '1' - return messages in chronological order. '0' - return messages in reverse chronological order.",
+        "type": "integer",
+        "enum": [
+          1,
+          0
+        ]
+      },
+      {
+        "name": "extended",
+        "description": "Information whether the response should be extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Profile fields to return.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.getConversationMembers",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of IDs of users participating in a chat.",
+    "parameters": [
+      {
+        "name": "peer_id",
+        "description": "Peer ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "extended",
+        "description": "Extended flag",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Profile fields to return.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.send",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Sends a message.",
+    "parameters": [
+      {
+        "name": "peer_id",
+        "description": "Destination ID. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set.) Text of the message.",
+        "type": "string",
+        "maxLength": 9000
+      },
+      {
+        "name": "attachment",
+        "description": "(Required if 'message' is not set.) List of objects attached to the message, separated by commas, in the following format: \"<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, 'wall' - wall post, '<owner_id>' - ID of the media attachment owner. '<media_id>' - media attachment ID. Example: \"photo100172_166443618\"",
+        "type": "string",
+        "maxLength": 9000
+      },
+      {
+        "name": "reply_to",
+        "type": "integer"
+      },
+      {
+        "name": "forward_messages",
+        "description": "ID of forwarded messages, separated with a comma. Listed messages of the sender will be shown in the message body at the recipient's. Example: \"123,431,544\"",
+        "type": "array",
+        "items": {
+          "type": "integer"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "dont_parse_links",
+        "type": "boolean"
+      },
+      {
+        "name": "disable_mentions",
+        "type": "boolean"
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.markAsRead",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Marks messages as read.",
+    "parameters": [
+      {
+        "name": "peer_id",
+        "description": "Destination ID. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "start_message_id",
+        "description": "Message ID to start from.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with user access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.getAlbums",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of a user's or community's photo albums.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the albums.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "album_ids",
+        "description": "Album IDs.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": 100,
+        "minItems": 1
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of albums.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of albums to return.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "need_system",
+        "description": "'1' - to return system albums with negative IDs",
+        "type": "boolean"
+      },
+      {
+        "name": "need_covers",
+        "description": "'1' - to return an additional 'thumb_src' field, '0' - (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "photo_sizes",
+        "description": "'1' - to return photo sizes in a",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.get",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of a user's or community's photos.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the photos. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "album_id",
+        "description": "Photo album ID. To return information about photos from service albums, use the following string values: 'profile, wall, saved'.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "photo_ids",
+        "description": "Photo IDs.",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "maxItems": 100,
+        "minItems": 1
+      },
+      {
+        "name": "rev",
+        "description": "Sort order: '1' - reverse chronological, '0' - chronological",
+        "type": "boolean"
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return additional 'likes', 'comments', and 'tags' fields, '0' - (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "feed_type",
+        "description": "Type of feed obtained in 'feed' field of the method.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "photo_sizes",
+        "description": "'1' - to return photo sizes in a [vk.com/dev/photo_sizes|special format]",
+        "type": "boolean"
+      },
+      {
+        "name": "offset",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.getComments",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of comments on a photo.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the photo.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "photo_id",
+        "description": "Photo ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "need_likes",
+        "description": "'1' - to return an additional 'likes' field, '0' - (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "start_comment_id",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of comments. By default, '0'.",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of comments to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "sort",
+        "description": "Sort order: 'asc' - old first, 'desc' - new first",
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "access_key",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.createAlbum",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Creates an empty photo album.",
+    "parameters": [
+      {
+        "name": "title",
+        "description": "Album title.",
+        "type": "string",
+        "required": true,
+        "minLength": 1,
+        "maxLength": 16000
+      },
+      {
+        "name": "group_id",
+        "description": "ID of the community in which the album will be created.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "description",
+        "description": "Album description.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "upload_by_admins_only",
+        "type": "boolean"
+      },
+      {
+        "name": "comments_disabled",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.editAlbum",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits information about a photo album.",
+    "parameters": [
+      {
+        "name": "album_id",
+        "description": "ID of the photo album to be edited.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "title",
+        "description": "New album title.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "description",
+        "description": "New album description.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the album.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "upload_by_admins_only",
+        "type": "boolean"
+      },
+      {
+        "name": "comments_disabled",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.get",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns detailed information about videos.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video(s).",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "album_id",
+        "description": "ID of the album containing the video(s).",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of videos to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of videos.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return an extended response with additional fields",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.getAlbums",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of video albums owned by a user or community.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video album(s).",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of video albums.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of video albums to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return additional information about album privacy settings for the current user",
+        "type": "boolean"
+      },
+      {
+        "name": "need_system",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.getComments",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of comments on a video.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "video_id",
+        "description": "Video ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "need_likes",
+        "description": "'1' - to return an additional 'likes' field",
+        "type": "boolean"
+      },
+      {
+        "name": "start_comment_id",
+        "type": "integer"
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of comments.",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of comments to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "sort",
+        "description": "Sort order: 'asc' - oldest comment first, 'desc' - newest comment first",
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc",
+          "interest"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.edit",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits information about a video on a user or community page.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "video_id",
+        "description": "Video ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "name",
+        "description": "New video title.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "desc",
+        "description": "New video description.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "no_comments",
+        "description": "Disable comments for the group video.",
+        "type": "boolean"
+      },
+      {
+        "name": "repeat",
+        "description": "'1' - to repeat the playback of the video, '0' - to play the video once,",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "docs.get",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns detailed information about user or community documents.",
+    "parameters": [
+      {
+        "name": "count",
+        "description": "Number of documents to return. By default, all documents.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of documents.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "type",
+        "type": "integer",
+        "minimum": 0,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the documents. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stats.get",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns statistics of a community or an application.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "timestamp_from",
+        "type": "number",
+        "minimum": 0
+      },
+      {
+        "name": "timestamp_to",
+        "type": "number",
+        "minimum": 0
+      },
+      {
+        "name": "interval",
+        "type": "string",
+        "enum": [
+          "all",
+          "day",
+          "month",
+          "week",
+          "year"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "intervals_count",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "filters",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "stats_groups",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stats.getPostReach",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns stats for a wall post.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "post owner community id. Specify with \"-\" sign.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_ids",
+        "description": "wall posts id",
+        "type": "array",
+        "required": true,
+        "items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": 30,
+        "minItems": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.get",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns items list for a community.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community, \"Note that community id in the 'owner_id' parameter should be negative number. For example 'owner_id'=-1 matches the [vk.com/apiclub|VK API] community \"",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "album_id",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of items to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of results.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "extended",
+        "description": "'1' - method will return additional fields: 'likes, can_comment, car_repost, photos'. These parameters are not returned by default.",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.getAlbums",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns community's market collections list.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an items owner community.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of results.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of items to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.getComments",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns comments list for an item.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "item_id",
+        "description": "Item ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "need_likes",
+        "description": "'1' - to return likes info.",
+        "type": "boolean"
+      },
+      {
+        "name": "start_comment_id",
+        "description": "ID of a comment to start a list from (details below).",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "offset",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of results to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "sort",
+        "description": "Sort order ('asc' - from old to new, 'desc' - from new to old)",
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "maxLength": 16000
+      },
+      {
+        "name": "extended",
+        "description": "'1' - comments will be returned as numbered objects, in addition lists of 'profiles' and 'groups' objects will be returned.",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "List of additional profile fields to return. See the [vk.com/dev/fields|details]",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.add",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Ads a new item to the market.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "name",
+        "description": "Item name.",
+        "type": "string",
+        "required": true,
+        "minLength": 4,
+        "maxLength": 100
+      },
+      {
+        "name": "description",
+        "description": "Item description.",
+        "type": "string",
+        "required": true,
+        "minLength": 10,
+        "maxLength": 16000
+      },
+      {
+        "name": "category_id",
+        "description": "Item category ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 0
+      },
+      {
+        "name": "price",
+        "description": "Item price.",
+        "type": "number",
+        "minimum": 0,
+        "maximum": 999999999999
+      },
+      {
+        "name": "main_photo_id",
+        "description": "Cover photo ID.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "photo_ids",
+        "description": "IDs of additional photos.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": 4
+      },
+      {
+        "name": "sku",
+        "type": "string",
+        "maxLength": 50
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.edit",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits an item.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "item_id",
+        "description": "Item ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "name",
+        "description": "Item name.",
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 100
+      },
+      {
+        "name": "description",
+        "description": "Item description.",
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 16000
+      },
+      {
+        "name": "category_id",
+        "description": "Item category ID.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "price",
+        "description": "Item price.",
+        "type": "number",
+        "minimum": 0,
+        "maximum": 999999999999
+      },
+      {
+        "name": "main_photo_id",
+        "description": "Cover photo ID.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "photo_ids",
+        "description": "IDs of additional photos.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": 4
+      },
+      {
+        "name": "sku",
+        "type": "string",
+        "maxLength": 50
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.getComment",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a comment on a post on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "comment_id",
+        "description": "Comment ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.delete",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a post from a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "ID of the post to be deleted.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.deleteComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a comment on a post on a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "Post ID.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "comment_id",
+        "description": "Comment ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.restore",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Restores a post deleted from a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID from whose wall the post was deleted. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "ID of the post to be restored.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.restoreComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Restores a comment deleted from a user wall or community wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "comment_id",
+        "description": "Comment ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.pin",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Pins the post on wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the wall. By default, current user ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "Post ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.unpin",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Unpins the post on wall.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the wall. By default, current user ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "description": "Post ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.closeComments",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "wall.closeComments",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "wall.openComments",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "wall.openComments",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "post_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getAddresses",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of community addresses.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID or screen name of the community.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of community addresses.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of community addresses to return.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "fields",
+        "description": "Address fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getBanned",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of users on a community blacklist.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of users.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of users to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getRequests",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of requests to the community.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of results.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of results to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "fields",
+        "description": "Profile fields to return.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getOnlineStatus",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "groups.getOnlineStatus",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.getTagList",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "List of group's tags",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.ban",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "groups.ban",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "owner_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "end_date",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "reason",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "comment",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "comment_visible",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.unban",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "groups.unban",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "owner_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.approveRequest",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Allows to approve join request to the community.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "user_id",
+        "description": "User ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.tagAdd",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Add new group's tag",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "tag_name",
+        "type": "string",
+        "required": true,
+        "maxLength": 20
+      },
+      {
+        "name": "tag_color",
+        "type": "string",
+        "enum": [
+          "454647",
+          "45678f",
+          "4bb34b",
+          "5181b8",
+          "539b9c",
+          "5c9ce6",
+          "63b9ba",
+          "6bc76b",
+          "76787a",
+          "792ec0",
+          "7a6c4f",
+          "7ececf",
+          "9e8d6b",
+          "a162de",
+          "aaaeb3",
+          "bbaa84",
+          "e64646",
+          "ff5c5c",
+          "ffa000",
+          "ffc107"
+        ],
+        "maxLength": 16000
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.tagBind",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Bind or unbind group's tag to user",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "tag_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "user_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1,
+        "maximum": 2000000000
+      },
+      {
+        "name": "act",
+        "description": "Describe the action",
+        "type": "string",
+        "required": true,
+        "enum": [
+          "bind",
+          "unbind"
+        ],
+        "maxLength": 16000
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.tagUpdate",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Update group's tag",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "tag_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "tag_name",
+        "type": "string",
+        "required": true,
+        "maxLength": 20
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "groups.tagDelete",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Delete group's tag",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "tag_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.getByConversationMessageId",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns messages by their IDs within the conversation.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "peer_id",
+        "description": "Destination ID. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "conversation_message_ids",
+        "description": "Conversation message IDs.",
+        "type": "array",
+        "required": true,
+        "items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": 100,
+        "minItems": 1
+      },
+      {
+        "name": "extended",
+        "description": "Information whether the response should be extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Profile fields to return.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.getHistoryAttachments",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns media files from the dialog or group chat.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "peer_id",
+        "description": "Peer ID. \", For group chat: '2000000000 + chat ID' , , For community: '-community ID'\"",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "cmid",
+        "type": "integer",
+        "minimum": 1
+      },
+      {
+        "name": "offset",
+        "type": "integer",
+        "minimum": -200,
+        "maximum": 200
+      },
+      {
+        "name": "count",
+        "description": "Number of objects to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Additional profile [vk.com/dev/fields|fields] to return. ",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "media_type",
+        "description": "Type of media files to return: *'photo',, *'video',, *'audio',, *'doc',, *'link'.,*'market'.,*'wall'.,*'share'",
+        "type": "string",
+        "enum": [
+          "app_action_games",
+          "app_action_mini_apps",
+          "audio",
+          "audio_message",
+          "clip",
+          "doc",
+          "graffiti",
+          "link",
+          "market",
+          "photo",
+          "share",
+          "video",
+          "wall"
+        ],
+        "maxLength": 16000
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.search",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of the current user's private messages that match search criteria.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "peer_id",
+        "description": "Destination ID. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "q",
+        "description": "Search query string.",
+        "type": "string",
+        "maxLength": 9000
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of messages.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of messages to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.edit",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Edits the message.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with user access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "peer_id",
+        "description": "Destination ID. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "cmid",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set.) Text of the message.",
+        "type": "string",
+        "maxLength": 9000
+      },
+      {
+        "name": "attachment",
+        "description": "(Required if 'message' is not set.) List of objects attached to the message, separated by commas, in the following format: \"<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, 'wall' - wall post, '<owner_id>' - ID of the media attachment owner. '<media_id>' - media attachment ID. Example: \"photo100172_166443618\"",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "keep_forward_messages",
+        "description": "'1' - to keep forwarded, messages.",
+        "type": "boolean"
+      },
+      {
+        "name": "keep_snippets",
+        "description": "'1' - to keep attached snippets.",
+        "type": "boolean"
+      },
+      {
+        "name": "dont_parse_links",
+        "type": "boolean"
+      },
+      {
+        "name": "disable_mentions",
+        "type": "boolean"
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.delete",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Deletes one or more messages.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with user access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "peer_id",
+        "description": "Destination ID. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "cmids",
+        "description": "Conversation message IDs.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": 100,
+        "minItems": 1,
+        "required": true
+      },
+      {
+        "name": "delete_for_all",
+        "description": "'1' - delete message for for all.",
+        "type": "boolean"
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "messages.markAsAnsweredConversation",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Marks and unmarks conversations as unanswered.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "peer_id",
+        "description": "ID of conversation to mark as important.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "answered",
+        "description": "'1' - to mark as answered, '0' - to remove the mark",
+        "type": "boolean",
+        "required": true
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.getAll",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of photos belonging to a user or community, in reverse chronological order.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of a user or community that owns the photos. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return detailed information about photos",
+        "type": "boolean"
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of photos. By default, '0'.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of photos to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      {
+        "name": "photo_sizes",
+        "description": "'1' - to return image sizes in [vk.com/dev/photo_sizes|special format].",
+        "type": "boolean"
+      },
+      {
+        "name": "no_service_albums",
+        "description": "'1' - to return photos only from standard albums, '0' - to return all photos including those in service albums, e.g., 'My wall photos' (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "need_hidden",
+        "description": "'1' - to show information about photos being hidden from the block above the wall.",
+        "type": "boolean"
+      },
+      {
+        "name": "skip_hidden",
+        "description": "'1' - not to return photos being hidden from the block above the wall. Works only with owner_id>0, no_service_albums is ignored.",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.getAlbumsCount",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns the number of photo albums belonging to a user or community.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "need_system",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.createComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Adds a new comment on the photo.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the photo.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "photo_id",
+        "description": "Photo ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "Comment text.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "(Required if 'message' is not set.) List of objects attached to the post, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - Media attachment owner ID. '<media_id>' - Media attachment ID. Example: \"photo100172_166443618,photo66748_265827614\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "from_group",
+        "description": "'1' - to post a comment from the community",
+        "type": "boolean"
+      },
+      {
+        "name": "reply_to_comment",
+        "type": "integer"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.edit",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits the caption of a photo.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the photo.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "photo_id",
+        "description": "Photo ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "caption",
+        "description": "New caption for the photo. If this parameter is not set, it is considered to be equal to an empty string.",
+        "type": "string",
+        "maxLength": 16000
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.delete",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a photo.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the photo.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "photo_id",
+        "description": "Photo ID.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.deleteAlbum",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Deletes a photo album belonging to the current user.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the album.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "album_id",
+        "description": "Album ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "photos.deleteComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a comment on the photo.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the photo.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "comment_id",
+        "description": "Comment ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.getAlbumById",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns video album info",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "identifier of a user or community to add a video to. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "album_id",
+        "description": "Album ID.",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.createComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Adds a new comment on a video.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "video_id",
+        "description": "Video ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "New comment text.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "List of objects attached to the comment, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media attachment: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media attachment owner. '<media_id>' - Media attachment ID. Example: \"photo100172_166443618,photo66748_265827614\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "from_group",
+        "description": "'1' - to post the comment from a community name (only if 'owner_id'<0)",
+        "type": "boolean"
+      },
+      {
+        "name": "reply_to_comment",
+        "type": "integer",
+        "minimum": 0
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.delete",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a video from a user or community page.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "video_id",
+        "description": "Video ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "target_id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.deleteAlbum",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Deletes a video album.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID (if the album is owned by a community).",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "album_id",
+        "description": "Album ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.editAlbum",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Edits the title of a video album.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Community ID (if the album edited is owned by a community).",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "album_id",
+        "description": "Album ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "title",
+        "description": "New album title.",
+        "type": "string",
+        "maxLength": 16000
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.deleteComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a comment on a video.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "comment_id",
+        "description": "ID of the comment to be deleted.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "video.restore",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Restores a previously deleted video.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the video.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "video_id",
+        "description": "Video ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.getTopics",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of topics on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_ids",
+        "description": "IDs of topics to be returned (100 maximum). By default, all topics are returned. If this parameter is set, the 'order', 'offset', and 'count' parameters are ignored.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": 100,
+        "minItems": 1
+      },
+      {
+        "name": "order",
+        "description": "Sort order: '1' - by date updated in reverse chronological order. '2' - by date created in reverse chronological order. '-1' - by date updated in chronological order. '-2' - by date created in chronological order. If no sort order is specified, topics are returned in the order specified by the group administrator. Pinned topics are returned first, regardless of the sorting.",
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          -1,
+          -2,
+          0
+        ]
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of topics.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of topics to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return information about users who created topics or who posted there last, '0' - to return no additional fields (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "preview",
+        "description": "'1' - to return the first comment in each topic,, '2' - to return the last comment in each topic,, '0' - to return no comments. By default: '0'.",
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          0
+        ]
+      },
+      {
+        "name": "preview_length",
+        "description": "Number of characters after which to truncate the previewed comment. To preview the full comment, specify '0'.",
+        "type": "integer",
+        "minimum": 0
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.getComments",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of comments on a topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "need_likes",
+        "description": "'1' - to return the 'likes' field, '0' - not to return the 'likes' field (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "start_comment_id",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of comments.",
+        "type": "integer"
+      },
+      {
+        "name": "count",
+        "description": "Number of comments to return.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return information about users who posted comments, '0' - to return no additional fields (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "sort",
+        "description": "Sort order: 'asc' - by creation date in chronological order, 'desc' - by creation date in reverse chronological order,",
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "maxLength": 16000
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user",
+      "service"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.addTopic",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Creates a new topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "title",
+        "description": "Topic title.",
+        "type": "string",
+        "required": true,
+        "maxLength": 16000
+      },
+      {
+        "name": "text",
+        "description": "Text of the topic.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "from_group",
+        "description": "For a community: '1' - to post the topic as by the community, '0' - to post the topic as by the user (default)",
+        "type": "boolean"
+      },
+      {
+        "name": "attachments",
+        "description": "List of media objects attached to the topic, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media object: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media owner. '<media_id>' - Media ID. Example: \"photo100172_166443618,photo66748_265827614\", , \"NOTE: If you try to attach more than one reference, an error will be thrown.\",",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.createComment",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Adds a comment on a topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "ID of the topic to be commented on.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set.) Text of the comment.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "(Required if 'text' is not set.) List of media objects attached to the comment, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media object: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media owner. '<media_id>' - Media ID.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "from_group",
+        "description": "'1' - to post the comment as by the community, '0' - to post the comment as by the user (default)",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.editTopic",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Edits the title of a topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "title",
+        "description": "New title of the topic.",
+        "type": "string",
+        "required": true,
+        "maxLength": 16000
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.editComment",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Edits a comment on a topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "comment_id",
+        "description": "ID of the comment on the topic.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "(Required if 'attachments' is not set). New comment text.",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "(Required if 'message' is not set.) List of media objects attached to the comment, in the following format: \"<owner_id>_<media_id>,<owner_id>_<media_id>\", '' - Type of media object: 'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document, '<owner_id>' - ID of the media owner. '<media_id>' - Media ID. Example: \"photo100172_166443618,photo66748_265827614\"",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.deleteTopic",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Deletes a topic from a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.deleteComment",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Deletes a comment on a topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "comment_id",
+        "description": "Comment ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.closeTopic",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Closes a topic on a community's discussion board so that comments cannot be posted.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "board.openTopic",
+    "mode": "write",
+    "scope": "group_id",
+    "description": "Re-opens a previously closed topic on a community's discussion board.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID of the community that owns the discussion board.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "topic_id",
+        "description": "Topic ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "polls.getById",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns detailed information about a poll by its ID.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the poll. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "poll_id",
+        "description": "Poll ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "is_board",
+        "description": "'1' - poll is in a board, '0' - poll is on a wall. '0' by default.",
+        "type": "boolean"
+      },
+      {
+        "name": "extended",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "polls.getVoters",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of IDs of users who selected specific answers in the poll.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the poll. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "poll_id",
+        "description": "Poll ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "answer_ids",
+        "description": "Answer IDs.",
+        "type": "array",
+        "required": true,
+        "items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxItems": 100,
+        "minItems": 1
+      },
+      {
+        "name": "is_board",
+        "type": "boolean"
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of voters. '0' - (default)",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "description": "Number of user IDs to return (if the 'friends_only' parameter is not set, maximum '1000', otherwise '10'). '100' - (default)",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "fields",
+        "description": "Profile fields to return. Sample values: 'nickname', 'screen_name', 'sex', 'bdate (birthdate)', 'city', 'country', 'timezone', 'photo', 'photo_medium', 'photo_big', 'has_mobile', 'rate', 'contacts', 'education', 'online', 'counters'.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "polls.create",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Creates polls that can be attached to the users' or communities' posts.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "If a poll will be added to a communty it is required to send a negative group identifier. Current user by default.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "question",
+        "description": "question text",
+        "type": "string",
+        "maxLength": 16000,
+        "required": true
+      },
+      {
+        "name": "is_anonymous",
+        "description": "'1' - anonymous poll, participants list is hidden,, '0' - public poll, participants list is available,, Default value is '0'.",
+        "type": "boolean"
+      },
+      {
+        "name": "is_multiple",
+        "type": "boolean"
+      },
+      {
+        "name": "end_date",
+        "type": "integer",
+        "minimum": 1550700000
+      },
+      {
+        "name": "add_answers",
+        "description": "available answers list, for example: \" [\"yes\",\"no\",\"maybe\"]\", There can be from 1 to 10 answers.",
+        "type": "string",
+        "maxLength": 16000,
+        "required": true
+      },
+      {
+        "name": "disable_unvote",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "polls.edit",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits created polls",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "poll owner id",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "poll_id",
+        "description": "edited poll's id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "question",
+        "description": "new question text",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "add_answers",
+        "description": "answers list, for example: , \"[\"yes\",\"no\",\"maybe\"]\"",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "edit_answers",
+        "description": "object containing answers that need to be edited,, key - answer id, value - new answer text. Example: {\"382967099\":\"option1\", \"382967103\":\"option2\"}\"",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "delete_answers",
+        "description": "list of answer ids to be deleted. For example: \"[382967099, 382967103]\"",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "end_date",
+        "type": "integer",
+        "minimum": 0
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stories.get",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns stories available for current user.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "Owner ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return additional fields for users and communities. Default value is 0.",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stories.getReplies",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns replies to the story.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "Story owner ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "story_id",
+        "description": "Story ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return additional fields for users and communities. Default value is 0.",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Additional fields to return",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stories.getStats",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns stories available for current user.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "Story owner ID. ",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "story_id",
+        "description": "Story ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stories.getViewers",
+    "mode": "read",
+    "scope": "owner_id",
+    "description": "Returns a list of story viewers.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "Story owner ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "story_id",
+        "description": "Story ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "count",
+        "description": "Maximum number of results.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "offset",
+        "description": "Offset needed to return a specific subset of results.",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "extended",
+        "description": "'1' - to return detailed information about photos",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "stories.delete",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Allows to delete story.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "Story owner's ID. Current user id is used by default.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "story_id",
+        "description": "Story ID.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.getCategories",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Returns a list of market categories.",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "Group Id.",
+        "type": "integer",
+        "minimum": 1,
+        "required": true
+      },
+      {
+        "name": "album_id",
+        "type": "integer",
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.getProperties",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Get properties",
+    "parameters": [
+      {
+        "name": "group_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.getGroupOrders",
+    "mode": "read",
+    "scope": "group_id",
+    "description": "Get market orders",
+    "parameters": [
+      {
+        "name": "group_id",
+        "description": "ID or groups domain",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "offset",
+        "type": "integer",
+        "minimum": 0
+      },
+      {
+        "name": "count",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50
+      }
+    ],
+    "token": "group",
+    "tokenTypes": [
+      "user",
+      "group"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.delete",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes an item.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "item_id",
+        "description": "Item ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.createComment",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Creates a new comment for an item.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "item_id",
+        "description": "Item ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "message",
+        "description": "Comment text (required if 'attachments' parameter is not specified)",
+        "type": "string",
+        "maxLength": 16000
+      },
+      {
+        "name": "attachments",
+        "description": "Comma-separated list of objects attached to a comment. The field is submitted the following way: , \"'<owner_id>_<media_id>,<owner_id>_<media_id>'\", , '' - media attachment type: \"'photo' - photo, 'video' - video, 'audio' - audio, 'doc' - document\", , '<owner_id>' - media owner id, '<media_id>' - media attachment id, , For example: \"photo100172_166443618,photo66748_265827614\",",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "from_group",
+        "description": "'1' - comment will be published on behalf of a community, '0' - on behalf of a user (by default).",
+        "type": "boolean"
+      },
+      {
+        "name": "reply_to_comment",
+        "description": "ID of a comment to reply with current comment to.",
+        "type": "integer",
+        "minimum": 0
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "market.addAlbum",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Creates new collection of items",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of an item owner community.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "title",
+        "description": "Collection title.",
+        "type": "string",
+        "required": true,
+        "maxLength": 128
+      },
+      {
+        "name": "main_album",
+        "description": "Set as main ('1' - set, '0' - no).",
+        "type": "boolean"
+      },
+      {
+        "name": "is_hidden",
+        "description": "Set as hidden",
+        "type": "boolean"
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "docs.edit",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Edits a document.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "User ID or community ID. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "doc_id",
+        "description": "Document ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      },
+      {
+        "name": "title",
+        "description": "Document title.",
+        "type": "string",
+        "required": true,
+        "maxLength": 128
+      },
+      {
+        "name": "tags",
+        "description": "Document tags.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 100
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "docs.delete",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "Deletes a user or community document.",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "description": "ID of the user or community that owns the document. Use a negative value to designate a community ID.",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "doc_id",
+        "description": "Document ID.",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  },
+  {
+    "name": "docs.restore",
+    "mode": "write",
+    "scope": "owner_id",
+    "description": "docs.restore",
+    "parameters": [
+      {
+        "name": "owner_id",
+        "type": "integer",
+        "required": true,
+        "maximum": -1
+      },
+      {
+        "name": "doc_id",
+        "type": "integer",
+        "required": true,
+        "minimum": 1
+      }
+    ],
+    "token": "user",
+    "tokenTypes": [
+      "user"
+    ],
+    "liveVerified": false
+  }
+]
