@@ -197,6 +197,14 @@ def build(directory=None, origin=None):
         response.headers['content-length']=str(len(response.body))
         return response
 
+    @server.custom_route('/vk/oauth/callback',methods=['GET'])
+    async def vk_registration_callback(request):
+        # Registration URI only. No VK ID authorization flow is enabled here.
+        # Reject unsolicited codes/states; never echo or store query credentials.
+        if request.query_params:
+            return page('<h1>Вход VK не завершён</h1><p>Запрос входа не найден. Вернитесь в приложение, из которого начинали подключение.</p>',400)
+        return page('<h1>Адрес возврата VK готов</h1><p>Вернитесь к настройке приложения VK и завершите регистрацию.</p>')
+
     @server.custom_route('/vk/health',methods=['GET'])
     async def health(request):
         return JSONResponse({'status':'ok','service':'vk-community-mcp','version':'0.1.0'})

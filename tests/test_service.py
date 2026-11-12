@@ -108,6 +108,18 @@ class ServiceTest(unittest.TestCase):
         with self.assertRaises(ValueError): asyncio.run(self.vk.execute('alice',op))
         self.assertIsNone(self.store.get('action',op))
 
+    def test_vk_registration_callback_does_not_accept_unsolicited_grants(self):
+        r=self.client.get('/vk/oauth/callback')
+        self.assertEqual(r.status_code,200)
+        self.assertEqual(r.headers['referrer-policy'],'no-referrer')
+        for params in [{'code':'synthetic-code','state':'synthetic-state'},
+                       {'access_token':'synthetic-token'},{'error':'synthetic-error'}]:
+            r=self.client.get('/vk/oauth/callback',params=params)
+            self.assertEqual(r.status_code,400)
+            for value in params.values():self.assertNotIn(value,r.text)
+        with self.store.db() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM objects WHERE kind IN ('access','code')").fetchone()[0],0)
+
     def test_http_security(self):
         r=self.client.get('/vk/health'); self.assertEqual(r.status_code,200)
         self.assertEqual(r.headers['referrer-policy'],'no-referrer')
